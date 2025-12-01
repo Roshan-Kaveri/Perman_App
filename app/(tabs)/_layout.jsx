@@ -16,7 +16,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
         tabBarShowLabel: false,
+
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          backgroundColor: "#212529",
+        },
         tabBarIconStyle: {
           marginTop: 6, // adjust until perfectly centered
         },

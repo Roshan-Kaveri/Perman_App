@@ -1,9 +1,21 @@
-import { ScrollView, Text } from "react-native-web";
+import { ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AISummary from "../../components/screens/finance/AISummary";
+import FinHeader from "../../components/screens/finance/FinHeader";
+import StatChart from "../../components/screens/finance/StatChart";
 
 export default function FinScreen() {
   return (
-    <ScrollView className="flex-1 items-center justify-center bg-black">
-      <Text className="text-xl font-bold text-blue-500">FInance</Text>
-    </ScrollView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 20,
+        }}
+      >
+        <FinHeader />
+        <AISummary />
+        <StatChart />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
