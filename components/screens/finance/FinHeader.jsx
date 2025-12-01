@@ -1,15 +1,25 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Pressable, Text, View } from "react-native";
-export default function FinHeader() {
+
+export default function FinHeader({ open, setOpen }) {
   return (
-    <View>
-      <Text className="text-gray_xs font-serif  text-[2rem]">
+    <View className="">
+      <Text className="text-gray_xs font-serif text-[2rem]">
         Track your expenses and look into data insights
       </Text>
-      <br />
-      <Pressable className="bg-gray_sm p-2 flex-1 flex-row justify-between">
-        ADD A TRANSACTION
-        <Feather name="arrow-right" size={24} color="black" />
+
+      <View className="mt-4"></View>
+
+      <Pressable
+        onPress={() => setOpen(!open)}
+        className="bg-gray_xl border border-gray_sm p-3 flex-row justify-between items-center rounded-md"
+      >
+        <Text className="text-gray_xs">ADD A TRANSACTION</Text>
+        <Feather
+          name={open ? "arrow-down" : "arrow-right"}
+          size={24}
+          color="#DEE2E6"
+        />
       </Pressable>
     </View>
   );
