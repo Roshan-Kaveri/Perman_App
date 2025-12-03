@@ -108,7 +108,7 @@ export default function FinScreen() {
               amount: 9.99,
               type: "Food",
               note: "Lunch",
-              date: "12 Dec",
+              date: "2025-12-25",
               req: "high",
             },
             {
@@ -116,7 +116,7 @@ export default function FinScreen() {
               amount: -15.99,
               type: "Rent",
               note: "Monthly rent",
-              date: "01 Dec",
+              date: "2025-12-25",
               req: "medium",
             },
             {
@@ -124,7 +124,7 @@ export default function FinScreen() {
               amount: 22.5,
               type: "Fun",
               note: "Bowling",
-              date: "05 Dec",
+              date: "2024-12-25",
               req: "low",
             },
           ]}

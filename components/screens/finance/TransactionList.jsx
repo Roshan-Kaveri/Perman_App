@@ -6,6 +6,7 @@ export default function TransactionList({
   transactions = [],
   typeFilters,
   reqFilters,
+  selectedMonth,
 }) {
   const [openId, setOpenId] = useState(null);
 
@@ -15,11 +16,48 @@ export default function TransactionList({
   };
 
   const filtered = transactions.filter((tx) => {
+    // -------------------------------
+    // TYPE / REQ FILTERS
+    // -------------------------------
     const typeKey = tx.type?.toLowerCase();
     const reqKey = tx.req?.toLowerCase();
     if (!typeKey || !reqKey) return false;
 
-    return (typeFilters[typeKey] ?? true) && (reqFilters[reqKey] ?? true);
+    if (!(typeFilters[typeKey] ?? true)) return false;
+    if (!(reqFilters[reqKey] ?? true)) return false;
+
+    // -------------------------------
+    // DATE PARSE
+    // -------------------------------
+    const d = new Date(tx.date);
+    const txMonth = d.getMonth();
+    const txYear = d.getFullYear();
+
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+    // -------------------------------
+    // MONTH/YEAR FILTER LOGIC
+    // -------------------------------
+    switch (selectedMonth) {
+      case "this_month":
+        return txMonth === thisMonth && txYear === thisYear;
+
+      case "last_month":
+        return txMonth === lastMonth && txYear === lastMonthYear;
+
+      case "2024":
+      case "2023":
+        return txYear === Number(selectedMonth);
+
+      case "all": 
+      default:
+        return true;
+    }
   });
 
   return (
