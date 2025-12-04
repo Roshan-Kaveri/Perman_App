@@ -11,7 +11,7 @@ export default function FinHeader({ open, setOpen }) {
       <View className="mt-4"></View>
 
       <Pressable
-        onPress={() => setOpen(!open)}
+        onPress={() => setOpen((prev) => !prev)}
         className="bg-gray_xl border border-gray_sm p-3 flex-row justify-between items-center rounded-md"
       >
         <Text className="text-gray_xs">ADD A TRANSACTION</Text>

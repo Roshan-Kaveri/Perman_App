@@ -11,6 +11,7 @@ import AddTransactionForm from "../../components/screens/finance/AddTranscation"
 import FilterButton from "../../components/screens/finance/FilterButton";
 import FilterDropdown from "../../components/screens/finance/FilterDropdown";
 import StatChart from "../../components/screens/finance/StatChart";
+import useExpenses from "../../services/expense.hooks";
 
 // Enable animations on Android
 if (Platform.OS === "android") {
@@ -20,9 +21,9 @@ if (Platform.OS === "android") {
 export default function FinScreen() {
   const [selectedMonth, setSelectedMonth] = useState("this_month");
 
-  // -------------------------------
-  // TYPE FILTERS
-  // -------------------------------
+  const [refresh, setRefresh] = useState(false);
+  const expenses = useExpenses(1, refresh);
+
   const [typeFilters, setTypeFilters] = useState({
     food: true,
     rent: true,
@@ -75,7 +76,12 @@ export default function FinScreen() {
         showsVerticalScrollIndicator={false}
       >
         <FinHeader open={formOpen} setOpen={setFormOpen} />
-        {formOpen && <AddTransactionForm />}
+        {formOpen && (
+          <AddTransactionForm
+            setRefresh={setRefresh}
+            setFormOpen={setFormOpen}
+          />
+        )}
 
         <AISummary selectedMonth={selectedMonth} />
 
@@ -102,32 +108,7 @@ export default function FinScreen() {
         <StatChart></StatChart>
 
         <TransactionList
-          transactions={[
-            {
-              id: 1,
-              amount: 9.99,
-              type: "Food",
-              note: "Lunch",
-              date: "2025-12-25",
-              req: "high",
-            },
-            {
-              id: 2,
-              amount: -15.99,
-              type: "Rent",
-              note: "Monthly rent",
-              date: "2025-12-25",
-              req: "medium",
-            },
-            {
-              id: 3,
-              amount: 22.5,
-              type: "Fun",
-              note: "Bowling",
-              date: "2024-12-25",
-              req: "low",
-            },
-          ]}
+          transactions={expenses}
           typeFilters={typeFilters}
           reqFilters={reqFilters}
           selectedMonth={selectedMonth}
