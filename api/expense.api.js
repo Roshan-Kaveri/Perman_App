@@ -1,4 +1,4 @@
-import api from "./axiosInstance";
+import { financeApi as api } from "./axiosInstance";
 
 export const getExpenses = (userId) =>
   api.get(`/getTransaction?userId=${userId}`);
