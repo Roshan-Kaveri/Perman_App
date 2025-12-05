@@ -4,7 +4,7 @@ import { Text, View, ActivityIndicator } from "react-native";
 import { getMonthlySummary, getYearlySummary } from "../../../api/ai.api";
 import Markdown from "react-native-markdown-display";
 
-export default function AISummary({ selectedMonth }) {
+export default function AISummary({ selectedMonth, refresh }) {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -64,7 +64,7 @@ export default function AISummary({ selectedMonth }) {
     };
 
     loadSummary();
-  }, [selectedMonth]);
+  }, [selectedMonth, refresh]);
 
   return (
     <View className="border-white border border-1 rounded-md mt-10 p-3">

@@ -83,7 +83,7 @@ export default function FinScreen() {
           />
         )}
 
-        <AISummary selectedMonth={selectedMonth} />
+        <AISummary selectedMonth={selectedMonth} refresh={refresh} />
 
         <MonthSelector
           selectedMonth={selectedMonth}
