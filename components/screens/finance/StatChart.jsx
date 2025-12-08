@@ -1,5 +1,5 @@
-import { Dimensions, Text, View } from "react-native";
-import Carousel from "react-native-reanimated-carousel";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 
 import CategoryChart from "./charts/CategorySpendChart";
 import FinanceStats from "./charts/FinanceStats";
@@ -23,12 +23,14 @@ export default function StatChart({
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
+  // --------------------------------------------------------------------
+  // PRIMARY DATE RANGE FILTER
+  // --------------------------------------------------------------------
   function filterBySelectedRange(tx) {
     const d = new Date(tx.date);
 
-    if (selectedMonth === "this_month") {
+    if (selectedMonth === "this_month")
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    }
 
     if (selectedMonth === "last_month") {
       const last = new Date(currentYear, currentMonth - 1, 1);
@@ -40,16 +42,15 @@ export default function StatChart({
 
     if (selectedMonth === "all") return true;
 
-    if (!isNaN(Number(selectedMonth))) {
+    if (!isNaN(Number(selectedMonth)))
       return d.getFullYear() === Number(selectedMonth);
-    }
 
     return true;
   }
 
-  // -----------------------------
-  // FILTER TRANSACTIONS
-  // -----------------------------
+  // --------------------------------------------------------------------
+  // APPLY TYPE + REQUIREMENT FILTERS
+  // --------------------------------------------------------------------
   let filtered = transactions.filter(filterBySelectedRange);
 
   filtered = filtered.filter((tx) => {
@@ -70,10 +71,11 @@ export default function StatChart({
     );
   }
 
-  // -----------------------------
-  // TIMELINE GROUPING
-  // -----------------------------
+  // --------------------------------------------------------------------
+  // TIMELINE GROUPING (MONTH or YEAR)
+  // --------------------------------------------------------------------
   const today = new Date();
+
   const selectedYear =
     selectedMonth === "all" || !isNaN(Number(selectedMonth))
       ? selectedMonth === "all"
@@ -121,9 +123,8 @@ export default function StatChart({
         targetYear === today.getFullYear() &&
         targetMonth === today.getMonth() &&
         day > today.getDate()
-      ) {
+      )
         return null;
-      }
 
       return String(day);
     }).filter(Boolean);
@@ -131,9 +132,9 @@ export default function StatChart({
     fullLabels.forEach((d) => (timeline[d] = 0));
   } else {
     fullLabels = Array.from({ length: 12 }, (_, i) => {
-      if (selectedYear === today.getFullYear() && i > today.getMonth()) {
+      if (selectedYear === today.getFullYear() && i > today.getMonth())
         return null;
-      }
+
       return {
         key: `${selectedYear}-${String(i + 1).padStart(2, "0")}`,
         label: MONTH_NAMES[i],
@@ -148,13 +149,11 @@ export default function StatChart({
     const d = new Date(cleanDate);
     if (isNaN(d.getTime())) return;
 
-    let key = isYearMode
+    const key = isYearMode
       ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
       : String(d.getDate());
 
-    if (timeline[key] !== undefined) {
-      timeline[key] += Number(t.amount) || 0;
-    }
+    if (timeline[key] !== undefined) timeline[key] += Number(t.amount) || 0;
   });
 
   let timelineLabels, timelineValues;
@@ -167,15 +166,14 @@ export default function StatChart({
     timelineValues = fullLabels.map((d) => timeline[d]);
   }
 
-  // -----------------------------
+  // --------------------------------------------------------------------
   // CATEGORY TOTALS
-  // -----------------------------
+  // --------------------------------------------------------------------
   const categoryTotals = { high: 0, medium: 0, low: 0, avoidable: 0 };
 
   filtered.forEach((t) => {
-    if (categoryTotals[t.req] !== undefined) {
+    if (categoryTotals[t.req] !== undefined)
       categoryTotals[t.req] += Number(t.amount);
-    }
   });
 
   const categoryData = Object.keys(categoryTotals).map((key) => ({
@@ -191,9 +189,9 @@ export default function StatChart({
             : "#60a5fa",
   }));
 
-  // -----------------------------
-  // FINANCE STATS
-  // -----------------------------
+  // --------------------------------------------------------------------
+  // FINANCE TOTALS
+  // --------------------------------------------------------------------
   let totalSpent = 0;
   let totalReceived = 0;
 
@@ -203,46 +201,62 @@ export default function StatChart({
     else totalReceived += amt;
   });
 
-  // -----------------------------
-  // CAROUSEL UI
-  // -----------------------------
-  const width = Dimensions.get("window").width;
-  console.log("TX:", filtered);
+  // --------------------------------------------------------------------
+  // TAB UI
+  // --------------------------------------------------------------------
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    { id: 0, label: "Overview" },
+    { id: 1, label: "Timeline" },
+    { id: 2, label: "Categories" },
+  ];
 
   return (
     <View className="mt-8">
       <Text className="text-white text-2xl font-semibold mb-4">Insights</Text>
 
-      <Carousel
-        width={width - 50}
-        height={320}
-        loop={false}
-        pagingEnabled
-        scrollAnimationDuration={350}
-        data={[0, 1, 2]}
-        renderItem={({ index }) => (
-          <View
-            style={{
-              width: width - 20,
-              paddingVertical: 10,
-            }}
-          >
-            {index === 1 && (
-              <TimelineChart labels={timelineLabels} values={timelineValues} />
-            )}
-            {index === 2 && <CategoryChart data={categoryData} />}
-            {index === 0 && (
-              <FinanceStats
-                totalSpent={totalSpent}
-                totalReceived={totalReceived}
-              />
-            )}
-          </View>
-        )}
-      />
+      {/* ---------------- TABS ---------------- */}
+      <View className="flex-row justify-around mb-4 bg-[#1b1b1b] p-2 rounded-xl border border-gray-700">
+        {tabs.map((tab) => (
+          <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)}>
+            <Text
+              style={{
+                paddingVertical: 6,
+                paddingHorizontal: 14,
+                borderRadius: 10,
+                borderWidth: activeTab === tab.id ? 1 : 0,
+                borderColor: "#22c55e",
+                color: activeTab === tab.id ? "#22c55e" : "#ccc",
+                fontWeight: activeTab === tab.id ? "700" : "400",
+              }}
+            >
+              {tab.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
-      <View className="flex-row justify-center mt-3 gap-4">
-        <Text className="text-gray-400 text-3xl">. . .</Text>
+      {/* ---------------- CONTENT ---------------- */}
+      <View
+        style={{
+          width: "100%",
+          borderWidth: 1,
+          borderColor: "#333",
+          borderRadius: 14,
+          paddingVertical: 10,
+          paddingHorizontal: 6,
+        }}
+      >
+        {activeTab === 0 && (
+          <FinanceStats totalSpent={totalSpent} totalReceived={totalReceived} />
+        )}
+
+        {activeTab === 1 && (
+          <TimelineChart labels={timelineLabels} values={timelineValues} />
+        )}
+
+        {activeTab === 2 && <CategoryChart data={categoryData} />}
       </View>
     </View>
   );

@@ -16,7 +16,7 @@ export default function CategoryChart({ data }) {
   }));
 
   return (
-    <View className="bg-gray_xl h-full  p-4 rounded-2xl ">
+    <View className="bg-gray_xl  p-4 ">
       <Text className="text-white text-lg font-semibold mb-3">
         Category Spending
       </Text>

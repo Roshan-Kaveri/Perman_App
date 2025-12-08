@@ -4,7 +4,7 @@ export default function FinanceStats({ totalSpent, totalReceived }) {
   const net = totalReceived - totalSpent;
 
   return (
-    <View className="bg-gray_xl h-full p-5  border border-gray-800">
+    <View className="bg-gray_xl p-5  border border-gray-800">
       {/* Title */}
       <Text className="text-white text-3xl font-semibold mb-4">Overview</Text>
 
