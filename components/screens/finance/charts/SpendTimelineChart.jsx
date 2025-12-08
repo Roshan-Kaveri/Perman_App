@@ -18,7 +18,7 @@ export default function TimelineChart({ labels, values }) {
   const reducedXLabels = labels.filter((_, idx) => idx % step === 0);
 
   return (
-    <View className="bg-gray_xl p-4  border border-gray-800">
+    <View className="bg-gray_xl h-full p-4  border border-gray-800">
       <Text className="text-white text-lg font-semibold mb-3">
         Spending Over Time
       </Text>

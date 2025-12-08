@@ -1,4 +1,6 @@
-import { Text, View } from "react-native";
+import { Dimensions, Text, View } from "react-native";
+import Carousel from "react-native-reanimated-carousel";
+
 import CategoryChart from "./charts/CategorySpendChart";
 import FinanceStats from "./charts/FinanceStats";
 import TimelineChart from "./charts/SpendTimelineChart";
@@ -11,8 +13,6 @@ export default function StatChart({ transactions, selectedMonth }) {
       </View>
     );
   }
-
-  console.log(selectedMonth, transactions);
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -58,10 +58,6 @@ export default function StatChart({ transactions, selectedMonth }) {
   // -----------------------------
   // TIMELINE GROUPING
   // -----------------------------
-  // ---------------------------------------------------------
-  // TIMELINE GROUPING WITH FULL RANGE + NO FUTURE DATES
-  // ---------------------------------------------------------
-
   const today = new Date();
   const selectedYear =
     selectedMonth === "all" || !isNaN(Number(selectedMonth))
@@ -90,9 +86,7 @@ export default function StatChart({ transactions, selectedMonth }) {
     "Dec",
   ];
 
-  // ---------------------------
-  // MONTH MODE → DAYS
-  // ---------------------------
+  // MONTH mode (days)
   if (!isYearMode) {
     let targetYear = today.getFullYear();
     let targetMonth = today.getMonth();
@@ -108,7 +102,6 @@ export default function StatChart({ transactions, selectedMonth }) {
     fullLabels = Array.from({ length: totalDays }, (_, i) => {
       const day = i + 1;
 
-      // Remove future days
       if (
         selectedMonth === "this_month" &&
         targetYear === today.getFullYear() &&
@@ -121,58 +114,39 @@ export default function StatChart({ transactions, selectedMonth }) {
       return String(day);
     }).filter(Boolean);
 
-    // Initialize
     fullLabels.forEach((d) => (timeline[d] = 0));
-
-    // ---------------------------
-    // YEAR MODE → MONTHS
-    // ---------------------------
   } else {
+    // YEAR mode (months)
     fullLabels = Array.from({ length: 12 }, (_, i) => {
-      const monthIndex = i;
-
-      // stop at current month for current year
-      if (
-        selectedYear === today.getFullYear() &&
-        monthIndex > today.getMonth()
-      ) {
+      if (selectedYear === today.getFullYear() && i > today.getMonth()) {
         return null;
       }
-
       return {
-        key: `${selectedYear}-${String(monthIndex + 1).padStart(2, "0")}`, // internal key
-        label: MONTH_NAMES[monthIndex], // x-axis label
+        key: `${selectedYear}-${String(i + 1).padStart(2, "0")}`,
+        label: MONTH_NAMES[i],
       };
     }).filter(Boolean);
 
-    // Initialize
     fullLabels.forEach((m) => (timeline[m.key] = 0));
   }
 
-  // ---------------------------
-  // FILL WITH REAL DATA
-  // ---------------------------
+  // Fill data
   filtered.forEach((t) => {
     const cleanDate = t.date.replace(/[^\d-]/g, "");
     const d = new Date(cleanDate);
-
-    if (isNaN(d.getTime())) return; // skip invalid dates
+    if (isNaN(d.getTime())) return;
 
     let key = isYearMode
       ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
       : String(d.getDate());
 
-    // Only count if it exists in timeline
     if (timeline[key] !== undefined) {
       timeline[key] += Number(t.amount) || 0;
     }
   });
 
-  // ---------------------------
-  // FINAL LABELS + VALUES
-  // ---------------------------
-  let timelineLabels;
-  let timelineValues;
+  // Final timeline arrays
+  let timelineLabels, timelineValues;
 
   if (isYearMode) {
     timelineLabels = fullLabels.map((m) => m.label);
@@ -204,8 +178,6 @@ export default function StatChart({ transactions, selectedMonth }) {
           : key === "low"
             ? "#4ade80"
             : "#60a5fa",
-    legendFontColor: "#fff",
-    legendFontSize: 14,
   }));
 
   // -----------------------------
@@ -221,15 +193,41 @@ export default function StatChart({ transactions, selectedMonth }) {
   });
 
   // -----------------------------
+  // CAROUSEL UI
+  // -----------------------------
+  const width = Dimensions.get("window").width;
+
   return (
     <View className="mt-8">
-      <Text className="text-white text-2xl font-semibold mb-3">Insights</Text>
+      <Text className="text-white text-2xl font-semibold mb-4">Insights</Text>
 
-      <TimelineChart labels={timelineLabels} values={timelineValues} />
+      <Carousel
+        width={width - 50}
+        height={300}
+        loop={false}
+        pagingEnabled
+        scrollAnimationDuration={350}
+        data={[0, 1, 2]}
+        renderItem={({ index }) => (
+          <View style={{ width: width - 20 }}>
+            {index === 1 && (
+              <TimelineChart labels={timelineLabels} values={timelineValues} />
+            )}
+            {index === 2 && <CategoryChart data={categoryData} />}
+            {index === 0 && (
+              <FinanceStats
+                totalSpent={totalSpent}
+                totalReceived={totalReceived}
+              />
+            )}
+          </View>
+        )}
+      />
 
-      <CategoryChart data={categoryData} />
-
-      <FinanceStats totalSpent={totalSpent} totalReceived={totalReceived} />
+      {/* Simple Labels Below Carousel */}
+      <View className="flex-row justify-center mt-3 gap-4">
+        <Text className="text-gray-400 text-3xl">. . .</Text>
+      </View>
     </View>
   );
 }
