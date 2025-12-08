@@ -38,7 +38,7 @@ export default function TransactionItem({ item, isOpen, onToggle }) {
       <View className="flex-row justify-between items-center">
         <View>
           <Text className="text-white text-lg font-semibold">
-            ${Math.abs(item.amount)}
+            ₹{Math.abs(item.amount)}
           </Text>
           <Text className="text-gray-400  text-xs mt-1">{item.date}</Text>
         </View>
