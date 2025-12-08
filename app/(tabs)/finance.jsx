@@ -105,7 +105,12 @@ export default function FinScreen() {
             toggleReqFilter={toggleReqFilter}
           />
         )}
-        <StatChart transactions={expenses} selectedMonth={selectedMonth} />
+        <StatChart
+          transactions={expenses}
+          typeFilters={typeFilters}
+          reqFilters={reqFilters}
+          selectedMonth={selectedMonth}
+        />
 
         <TransactionList
           transactions={expenses}

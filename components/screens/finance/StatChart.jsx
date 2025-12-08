@@ -5,7 +5,12 @@ import CategoryChart from "./charts/CategorySpendChart";
 import FinanceStats from "./charts/FinanceStats";
 import TimelineChart from "./charts/SpendTimelineChart";
 
-export default function StatChart({ transactions, selectedMonth }) {
+export default function StatChart({
+  transactions,
+  selectedMonth,
+  typeFilters,
+  reqFilters,
+}) {
   if (!transactions || transactions.length === 0) {
     return (
       <View className="mt-8">
@@ -18,9 +23,6 @@ export default function StatChart({ transactions, selectedMonth }) {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  // -----------------------------
-  // FILTERING
-  // -----------------------------
   function filterBySelectedRange(tx) {
     const d = new Date(tx.date);
 
@@ -45,9 +47,22 @@ export default function StatChart({ transactions, selectedMonth }) {
     return true;
   }
 
-  const filtered = transactions.filter(filterBySelectedRange);
+  // -----------------------------
+  // FILTER TRANSACTIONS
+  // -----------------------------
+  let filtered = transactions.filter(filterBySelectedRange);
 
-  if (!filtered || filtered.length === 0) {
+  filtered = filtered.filter((tx) => {
+    const typeKey = tx.type?.toLowerCase();
+    const reqKey = tx.req?.toLowerCase();
+
+    const typeAllowed = typeFilters[typeKey] ?? true;
+    const reqAllowed = reqFilters[reqKey] ?? true;
+
+    return typeAllowed && reqAllowed;
+  });
+
+  if (!filtered.length) {
     return (
       <View className="mt-8">
         <Text className="text-white text-xl">No Insights Available</Text>
@@ -86,7 +101,6 @@ export default function StatChart({ transactions, selectedMonth }) {
     "Dec",
   ];
 
-  // MONTH mode (days)
   if (!isYearMode) {
     let targetYear = today.getFullYear();
     let targetMonth = today.getMonth();
@@ -116,7 +130,6 @@ export default function StatChart({ transactions, selectedMonth }) {
 
     fullLabels.forEach((d) => (timeline[d] = 0));
   } else {
-    // YEAR mode (months)
     fullLabels = Array.from({ length: 12 }, (_, i) => {
       if (selectedYear === today.getFullYear() && i > today.getMonth()) {
         return null;
@@ -130,7 +143,6 @@ export default function StatChart({ transactions, selectedMonth }) {
     fullLabels.forEach((m) => (timeline[m.key] = 0));
   }
 
-  // Fill data
   filtered.forEach((t) => {
     const cleanDate = t.date.replace(/[^\d-]/g, "");
     const d = new Date(cleanDate);
@@ -145,7 +157,6 @@ export default function StatChart({ transactions, selectedMonth }) {
     }
   });
 
-  // Final timeline arrays
   let timelineLabels, timelineValues;
 
   if (isYearMode) {
@@ -196,6 +207,7 @@ export default function StatChart({ transactions, selectedMonth }) {
   // CAROUSEL UI
   // -----------------------------
   const width = Dimensions.get("window").width;
+  console.log("TX:", filtered);
 
   return (
     <View className="mt-8">
@@ -203,13 +215,18 @@ export default function StatChart({ transactions, selectedMonth }) {
 
       <Carousel
         width={width - 50}
-        height={300}
+        height={320}
         loop={false}
         pagingEnabled
         scrollAnimationDuration={350}
         data={[0, 1, 2]}
         renderItem={({ index }) => (
-          <View style={{ width: width - 20 }}>
+          <View
+            style={{
+              width: width - 20,
+              paddingVertical: 10,
+            }}
+          >
             {index === 1 && (
               <TimelineChart labels={timelineLabels} values={timelineValues} />
             )}
@@ -224,7 +241,6 @@ export default function StatChart({ transactions, selectedMonth }) {
         )}
       />
 
-      {/* Simple Labels Below Carousel */}
       <View className="flex-row justify-center mt-3 gap-4">
         <Text className="text-gray-400 text-3xl">. . .</Text>
       </View>
