@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getExpenses } from "../api/expense.api";
+import { getExpenses } from "../api/expense.api.js";
 
 export default function useExpenses(userId = 1, refresh) {
   const [expenses, setExpenses] = useState([]);
