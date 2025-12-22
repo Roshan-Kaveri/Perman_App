@@ -1,4 +1,4 @@
-import { aiApi } from "./axiosInstance";
+import { aiApi } from "./axiosInstance.js";
 
 export const getMonthlySummary = (userId, year, month) => {
   return aiApi.get("/summary/month", {
